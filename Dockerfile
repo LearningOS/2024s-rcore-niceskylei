@@ -13,10 +13,12 @@ ARG HOME=/root
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y \
-        curl \
-        git \
-        python3 \
-        wget
+    curl \
+    git \
+    python3 \
+    vim \
+    zsh \
+    wget
 
 # 1. Set up QEMU RISC-V
 # - https://learningos.github.io/rust-based-os-comp2022/0setup-devel-env.html#qemu
@@ -32,10 +34,10 @@ RUN wget https://download.qemu.org/qemu-${QEMU_VERSION}.tar.xz && \
 # 1.2. Install dependencies
 # - https://risc-v-getting-started-guide.readthedocs.io/en/latest/linux-qemu.html#prerequisites
 RUN apt-get install -y \
-        autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev \
-        gawk build-essential bison flex texinfo gperf libtool patchutils bc \
-        zlib1g-dev libexpat-dev git \
-        ninja-build pkg-config libglib2.0-dev libpixman-1-dev libsdl2-dev
+    autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev \
+    gawk build-essential bison flex texinfo gperf libtool patchutils bc \
+    zlib1g-dev libexpat-dev git \
+    ninja-build pkg-config libglib2.0-dev libpixman-1-dev libsdl2-dev
 
 # 1.3. Build and install from source
 WORKDIR ${HOME}/qemu-${QEMU_VERSION}
@@ -57,12 +59,14 @@ RUN qemu-system-riscv64 --version && \
 # - https://github.com/rust-lang/docker-rust/blob/master/Dockerfile-debian.template
 
 # 2.1. Install
-ENV RUSTUP_HOME=/usr/local/rustup \
-    CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:$PATH \
+ENV RUSTUP_HOME=/root/.rustup \
+    CARGO_HOME=/root/.cargo \
+    PATH=/root/.cargo/bin:$PATH \
+    RUSTUP_DIST_SERVER=https://rsproxy.cn \
+    RUSTUP_UPDATE_ROOT=https://rsproxy.cn/rustup \
     RUST_VERSION=nightly
 RUN set -eux; \
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup-init; \
+    curl --proto '=https' --tlsv1.2 -sSf https://rsproxy.cn/rustup-init.sh -o rustup-init; \
     chmod +x rustup-init; \
     ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION; \
     rm rustup-init; \
